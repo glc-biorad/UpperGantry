@@ -27,6 +27,8 @@
     <Compile Include="motor.py" />
     <Compile Include="parse.py" />
     <Compile Include="UpperGantry.py" />
+    <Compile Include="upper_gantry_coordinate.py" />
+    <Compile Include="upper_gantry_velocity.py" />
     <Compile Include="utils.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

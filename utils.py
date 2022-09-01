@@ -13,6 +13,42 @@ def check_if_dir_valid(direction):
     if direction not in valid_directions:
         sys.exit("ERROR (utils, check_if_dir_valid): direction ({0}) is not valid ({1})".format(direction, valid_directions))
 
+def check_array_size(array, size):
+    if len(array) != size:
+        sys.exit("ERROR (utils, check_array_size): size ({0}) mismatch from actual array size ({1})".format(size, len(array)))
+
+def check_limit(value, limit, mode='<', verbose=True):
+    '''
+    Check if value {mode} limit
+        e.g.  value < limit
+    '''
+    modes = ['<', '>', '>=', '<=', '==', '=', '!=']
+
+    # Make sure given mode is in the valid modes.
+    if mode in modes:
+        if mode == '<':
+            if value < limit:
+                return True
+        elif mode == '>':
+            if value > limit:
+                return True
+        elif mode == '>=':
+            if value >= limit:
+                return True
+        elif mode == '<=':
+            if value <= limit:
+                return True
+        elif mode == '==' or mode == '=':
+            if value == limit:
+                return True
+        elif mode == '!=':
+            if value != limit:
+                return True
+        if verbose:
+            print(f"WARNING (utils, check_limit): {value} {mode} {limit} is False...")
+        return False
+    sys.exit("ERROR (utils, check_limit): mode ({0}) is not valid!".format(mode))
+
 def replace_address(command_byte_string, address):
         # Replace address depending on the address.
         if address < 10:
