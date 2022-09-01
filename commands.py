@@ -197,5 +197,9 @@ commands = {
         'setmul' : b'>address,0,setmul,chans,time,<CR>\n',
         'offmul' : b'>address,0,offmul,chans,time,<CR>\n',
         '?coils' : b'>address,0,?coils,<CR>\n'
+        },
+    'chassis' : { # Aru temp solution till MAX22200 issue resolved
+        'relayon' : b'>address,0,relayon,channel,<CR>\n',
+        'relayoff' : b'>address,0,relayoff,channel,<CR>\n'
         }
     }
