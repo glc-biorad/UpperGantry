@@ -4,12 +4,14 @@
 import time
 
 import motor 
-
+from commands import commands
 from coordinate import Coordinate
+
 from upper_gantry_coordinate import UpperGantryCoordinate, target_to_upper_gantry_coordinate
 from upper_gantry_velocity import UpperGantryVelocity
+
 from controller import Controller
-from commands import commands
+
 from utils import wait, check_limit
 
 class UpperGantry(motor.Motor): # Also need to inheret from an Air class (Air module)
@@ -117,43 +119,84 @@ class UpperGantry(motor.Motor): # Also need to inheret from an Air class (Air mo
 
     # Home Pipettor Method
     def home_pipettor(self):
-        # Update the velocity
         # Home along Z.
         self.home(self.__ADDRESS_PIPETTOR_Z, block=True)
         # Home along X and Y.
         self.home(self.__ADDRESS_PIPETTOR_Y, block=False)
         self.home(self.__ADDRESS_PIPETTOR_X, block=True)
-        # Update the coordinates and velocity
 
     # Tip Pickup Method
     def tip_pickup(self, target):
         # Convert the target to an UpperGantryCoordinate.
         target_ugc = target_to_upper_gantry_coordinate(target)
         # Move the upper gantry along Z to clear the prep deck.
-        self.home(self.__ADDRESS_PIPETTOR_Z)
-        # Wait for the move to complete.
-        wait(self.controller)
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, 0, int(self.__LIMIT_MAX_VELOCITY_Z / 2), block=True)
         # Move the upper gantry along X and Y to the target location.
-        self.mabs(self.__ADDRESS_PIPETTOR_X, target_ugc.x, self.__LIMIT_MAX_VELOCITY_X)
-        self.mabs(self.__ADDRESS_PIPETTOR_Y, target_ugc.y, self.__LIMIT_MAX_VELOCITY_Y)
-        # Wait for the move to complete.
-        wait(self.controller)
+        self.mabs(self.__ADDRESS_PIPETTOR_Y, target_ugc.y, self.__LIMIT_MAX_VELOCITY_Y, block=False)
+        self.mabs(self.__ADDRESS_PIPETTOR_X, target_ugc.x, self.__LIMIT_MAX_VELOCITY_X, block=True)
         # Move the upper gantry along Z to mount the tips on the pipettor mandrels.
-        self.mabs(self.__ADDRESS_PIPETTOR_Z, target_ugc.z, self.__LIMIT_MAX_VELOCITY_Z)
-        # Wait for the move to complete.
-        wait(self.controller)
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, target_ugc.z, self.__LIMIT_MAX_VELOCITY_Z, block=True)
+
+    # Tip Eject Method
+    def tip_eject(self, target):
+        return None
 
     # Move Pipettor Method
     def move_pipettor(self, target):
         # Convert the target to an UpperGantryCoordinate.
         target_ugc = target_to_upper_gantry_coordinate(target)
         # Move the upper gantry along Z to clear the prep deck.
-        self.home(self.__ADDRESS_PIPETTOR_Z, block=True)
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, 0, int(self.__LIMIT_MAX_VELOCITY_Z / 2), block=True)
         # Move the upper gantry along X and Y to the target location.
         self.mabs(self.__ADDRESS_PIPETTOR_Y, target_ugc.y, int(self.__LIMIT_MAX_VELOCITY_Y / 2), block=False)
         self.mabs(self.__ADDRESS_PIPETTOR_X, target_ugc.x, int(self.__LIMIT_MAX_VELOCITY_X / 2), block=True)
         # Move the upper gantry along Z to mount the tips on the pipettor mandrels.
         self.mabs(self.__ADDRESS_PIPETTOR_Z, target_ugc.z, int(self.__LIMIT_MAX_VELOCITY_Z / 2), block=True)
+
+    # Move Aspirate Dispense Method
+    def move_aspirate_dispense(self, source, target, aspirate_vol, dispense_vol):
+        # Convert the source and target to an UpperGantryCoordinate object.
+        source_ugc = target_to_upper_gantry_coordinate(source)
+        target_ugc = target_to_upper_gantry_coordinate(target)
+        # Move the upper gantry along Z to clear the prep deck.
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, 0, int(self.__LIMIT_MAX_VELOCITY_Z / 2), block=True)
+        # Move the upper gantry along Y and X to the source location.
+        self.mabs(self.__ADDRESS_PIPETTOR_Y, source_ugc.y, self.__LIMIT_MAX_VELOCITY_Y, block=False)
+        self.mabs(self.__ADDRESS_PIPETTOR_X, source_ugc.x, self.__LIMIT_MAX_VELOCITY_X, block=True)
+        # Move the upper gantry along Z to the source location.
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, source_ugc.z, self.__LIMIT_MAX_VELOCITY_Z, block=True)
+        # Set the pipettor aspirate volume
+        # Set the pipettor aspiration residual volume
+        # Set the pipettor dispense volume
+        # Set the pipettor dispense residual volume
+        # Set the pipettor mode to ASPIRATE
+        # Trigger pipettor action
+        # Delay to allow the pipettor to complete this action
+        # Poll pipettor to check action completion status
+        # Move the upper gantry along Z to clear the prep deck.
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, 0, int(self.__LIMIT_MAX_VELOCITY_Z / 2), block=True)
+        # Move the upper gantry along Y and X to the target location.
+        self.mabs(self.__ADDRESS_PIPETTOR_Y, target_ugc.y, self.__LIMIT_MAX_VELOCITY_Y, block=False)
+        self.mabs(self.__ADDRESS_PIPETTOR_X, target_ugc.x, self.__LIMIT_MAX_VELOCITY_X, block=True)
+        # Move the upper gantry along Z to the target location.
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, target_ugc.z, self.__LIMIT_MAX_VELOCITY_Z, block=True)
+        # Set the pipettor mode to DISPENSE
+        # Trigger the pipettor action
+        # Delay to allow pipettor to complete action
+        # Poll the pipettor to check the action completion status
+        return None
+
+    # Mix Method
+    def mix(self, aspirate_vol, dispense_vol):
+        return None
+
+    # Open Tray Method
+    def open_tray(self, tray_number):
+        return None
+
+    # Close Tray Method
+    def close_tray(self, tray_number):
+        return None
 
 if __name__ == '__main__':
     # Setup the serial connection as the controller.
@@ -173,34 +216,12 @@ if __name__ == '__main__':
     MAX_Y_SPEED = 3200000
     MAX_Z_SPEED = 800000
     
-    #upper_gantry.mabs(ADDRESS_PIPETTOR_Y, -200000, 150000)
-    #print("Going home now")
-    #upper_gantry.home(ADDRESS_PIPETTOR_Y)
+    # Upper Gantry Move Pipettor.
+    target = [-240000, -200000, -500000, 0]
+    target = UpperGantryCoordinate(x=-240000, y=-200000, z=-500000, drip_plate=0)
+    upper_gantry.move_pipettor(target)
+    print("Target Reached...")
 
     # Upper Gantry Home Pipettor.
-    #print("Moving Z to clear prep deck for saftey")
-    #upper_gantry.home(ADDRESS_PIPETTOR_Z, block=True)
-    #print("Moving X and Y to target")
-    #upper_gantry.mabs(ADDRESS_PIPETTOR_Y, -200000, int(MAX_Y_SPEED / 2), block=False)
-    #upper_gantry.mabs(ADDRESS_PIPETTOR_X, -240000, int(MAX_X_SPEED / 2), block=True)
-    #print("Moving Z to target")
-    #upper_gantry.mabs(ADDRESS_PIPETTOR_Z, -500000, int(MAX_Z_SPEED / 2), block=True)
-    upper_gantry.move_pipettor([-240000, -200000, -500000, 0])
-    x = upper_gantry.get_position_from_response(ADDRESS_PIPETTOR_X)
-    y = upper_gantry.get_position_from_response(ADDRESS_PIPETTOR_Y)
-    z = upper_gantry.get_position_from_response(ADDRESS_PIPETTOR_Z)
-    print(x)
-    print(y)
-    print(z)
-    input("READY?")
-    print("Going home")
-    #upper_gantry.home(ADDRESS_PIPETTOR_Z, block=True)
-    #upper_gantry.home(ADDRESS_PIPETTOR_Y, block=False)
-    #upper_gantry.home(ADDRESS_PIPETTOR_X, block=True)
     upper_gantry.home_pipettor()
-    x = upper_gantry.get_position_from_response(ADDRESS_PIPETTOR_X)
-    y = upper_gantry.get_position_from_response(ADDRESS_PIPETTOR_Y)
-    z = upper_gantry.get_position_from_response(ADDRESS_PIPETTOR_Z)
-    print(x)
-    print(y)
-    print(z)
+    print("Homed...")
