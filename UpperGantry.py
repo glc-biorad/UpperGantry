@@ -10,6 +10,8 @@ from coordinate import Coordinate
 from upper_gantry_coordinate import UpperGantryCoordinate, target_to_upper_gantry_coordinate
 from upper_gantry_velocity import UpperGantryVelocity
 
+from seyonic import Seyonic
+
 from controller import Controller
 
 from utils import wait, check_limit
@@ -23,6 +25,7 @@ class UpperGantry(motor.Motor): # Also need to inheret from an Air class (Air mo
     __coordinate = UpperGantryCoordinate()
     __velocity = UpperGantryVelocity()
     __moved = None # bool
+    __pipettor = Seyonic()
     
     # Private constants (Addresses).
     __ADDRESS_PIPETTOR_X = 0x1
@@ -166,13 +169,16 @@ class UpperGantry(motor.Motor): # Also need to inheret from an Air class (Air mo
         # Move the upper gantry along Z to the source location.
         self.mabs(self.__ADDRESS_PIPETTOR_Z, source_ugc.z, self.__LIMIT_MAX_VELOCITY_Z, block=True)
         # Set the pipettor aspirate volume
+        self.__pipettor.set_aspirate_volumes(aspirate_vol)
         # Set the pipettor aspiration residual volume
         # Set the pipettor dispense volume
+        self.__pipettor.set_dispense_volumes(dispense_vol)
         # Set the pipettor dispense residual volume
-        # Set the pipettor mode to ASPIRATE
+        # Set the pipettor mode to ASPIRATE <---- Taken care off in aspirate method
         # Trigger pipettor action
-        # Delay to allow the pipettor to complete this action
-        # Poll pipettor to check action completion status
+        self.__pipettor.aspirate()
+        # Delay to allow the pipettor to complete this action <---- Taken care off in aspirate method
+        # Poll pipettor to check action completion status <---- Taken care off in aspirate method
         # Move the upper gantry along Z to clear the prep deck.
         self.mabs(self.__ADDRESS_PIPETTOR_Z, 0, int(self.__LIMIT_MAX_VELOCITY_Z / 2), block=True)
         # Move the upper gantry along Y and X to the target location.
@@ -181,14 +187,39 @@ class UpperGantry(motor.Motor): # Also need to inheret from an Air class (Air mo
         # Move the upper gantry along Z to the target location.
         self.mabs(self.__ADDRESS_PIPETTOR_Z, target_ugc.z, self.__LIMIT_MAX_VELOCITY_Z, block=True)
         # Set the pipettor mode to DISPENSE
-        # Trigger the pipettor action
-        # Delay to allow pipettor to complete action
-        # Poll the pipettor to check the action completion status
-        return None
+        self.__pipettor.dispense()
+        # Trigger the pipettor action <---- Taken care off in dispense method
+        # Delay to allow pipettor to complete action <---- Taken care off in dispense method
+        # Poll the pipettor to check the action completion status <---- Taken care off in dispense method
 
     # Mix Method
     def mix(self, aspirate_vol, dispense_vol):
-        return None
+        # Set the pipettor aspirate volume
+        self.__pipettor.set_aspirate_volumes(aspirate_vol)
+        # Set the pipettor aspirate residual volume
+        # Set the pipettor dispense volume
+        self.__pipettor.set_dispense_volumes(dispense_vol)
+        # Set the pipettor dispense residual volume
+        # Set the pipettor mode to ASPIRATE
+        # Trigger pipettor action
+        self.__pipettor.aspirate()
+        # Delay to allow pipettor to complete action
+        # Poll pipettor to check action completion status
+        # Set the pipettor mode to DISPENSE
+        # Trigger pipettor action
+        self.__pipettor.dispense()
+        # Delay to allow pipettor to complete action
+        # Poll pipettor to check action completion status
+        # Set the pipettor mode to ASPIRATE
+        # Trigger pipettor action
+        self.__pipettor.aspirate()
+        # Delay to allow pipettor to complete action
+        # Poll pipettor to check action completion status
+        # Set the pipettor mode to DISPENSE
+        # Trigger pipettor action
+        self.__pipettor.dispense()
+        # Delay to allow pipettor to complete action
+        # Poll pipettor to check action completion status
 
     # Open Tray Method
     def open_tray(self, tray_number):
@@ -218,10 +249,10 @@ if __name__ == '__main__':
     
     # Upper Gantry Move Pipettor.
     target = [-240000, -200000, -500000, 0]
-    target = UpperGantryCoordinate(x=-240000, y=-200000, z=-500000, drip_plate=0)
-    upper_gantry.move_pipettor(target)
+    #target = UpperGantryCoordinate(x=-240000, y=-200000, z=-500000, drip_plate=0)
+    #upper_gantry.move_pipettor(target)
     print("Target Reached...")
 
     # Upper Gantry Home Pipettor.
-    upper_gantry.home_pipettor()
+    #upper_gantry.home_pipettor()
     print("Homed...")

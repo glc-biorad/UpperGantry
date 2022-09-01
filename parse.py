@@ -18,7 +18,7 @@ import argparse
 
 class Parser(argparse.ArgumentParser):
     # Public variables.
-    COM = 'COM8' #'/dev/ttyUSB0'
+    COM = 'COM3' #'COM8' #'/dev/ttyUSB0'
     baud_rate = 115200
     commands_fpath = 'commands.csv'
     responses_fpath = 'responses.csv'

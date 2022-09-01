@@ -26,6 +26,7 @@
     <Compile Include="coordinate.py" />
     <Compile Include="motor.py" />
     <Compile Include="parse.py" />
+    <Compile Include="seyonic.py" />
     <Compile Include="UpperGantry.py" />
     <Compile Include="upper_gantry_coordinate.py" />
     <Compile Include="upper_gantry_velocity.py" />
