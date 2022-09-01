@@ -23,7 +23,6 @@ csv file, preferably also with the command that produced the response
 import sys
 import time
 import serial
-import numpy as np
 
 from coordinate import Coordinate
 from parse import Parser
