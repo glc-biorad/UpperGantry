@@ -229,6 +229,21 @@ class UpperGantry(motor.Motor): # Also need to inheret from an Air class (Air mo
     def close_tray(self, tray_number):
         return None
 
+    # Move Relative From Known Method
+    def mrel_from_known(self, known_location, relative_distance):
+        # Convert known_location and relative_distance to UpperGantryCoordinates.
+        known_location_ugc = target_to_upper_gantry_coordinate(known_location)
+        relative_distance_ugc = target_to_upper_gantry_coordinate(relative_distance)
+        # Compute the unknown location.
+        unknown_location_ugc = known_location_ugc + relative_distance_ugc
+        # Move along Z to clear the prep deck.
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, 0, self.__LIMIT_MAX_VELOCITY_Z, block=True)
+        # Move along Y and X to the unknown location.
+        self.mabs(self.__ADDRESS_PIPETTOR_Y, unknown_location_ugc.y, self.__LIMIT_MAX_VELOCITY_Y, block=False)
+        self.mabs(self.__ADDRESS_PIPETTOR_X, unknown_location_ugc.x, self.__LIMIT_MAX_VELOCITY_X, block=True)
+        # Move along Z to the unknown location.
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, unknown_location_ugc.z, self.__LIMIT_MAX_VELOCITY_Z, block=True)
+
 if __name__ == '__main__':
     # Setup the serial connection as the controller.
     controller = Controller()
