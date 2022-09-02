@@ -25,6 +25,7 @@
     <Compile Include="commands.py" />
     <Compile Include="controller.py" />
     <Compile Include="coordinate.py" />
+    <Compile Include="led.py" />
     <Compile Include="motor.py" />
     <Compile Include="parse.py" />
     <Compile Include="seyonic.py" />

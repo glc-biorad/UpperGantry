@@ -189,7 +189,7 @@ commands = {
         'off' : b'>address,0,off,chan,<CR>\n',
         'setmul' : b'>address,0,setmul,chans,level,<CR>\n', # Set multiple channels on (chans = ???)
         'offmul' : b'>address,0,offmul,chans,<CR>\n',
-        '?led' : b'>address,0,?led,chan,<CR>\n'
+        '?led' : b'>address,0,?led,chan,<CR>\n' # Get the led level (intensity)
         },
     'coil' : {
         'set' : b'>address,0,set,chan,time,<CR>\n',
