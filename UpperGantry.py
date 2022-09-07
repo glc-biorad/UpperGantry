@@ -59,7 +59,7 @@ class UpperGantry(motor.Motor): # Also need to inheret from an Air class (Air mo
     __RUN_CURRENT_DRIP_PLATE = 1
 
     def __init__(self, controller):
-        super().__init__(self)
+        super(motor.Motor, self).__init__()
         self.controller = controller
 
     # Getter Functions: Address
@@ -146,15 +146,19 @@ class UpperGantry(motor.Motor): # Also need to inheret from an Air class (Air mo
 
     # Move Pipettor Method
     def move_pipettor(self, target):
+        print("MESSAGE (upper_gantry, move_pipettor): starting...testing for hang time")
         # Convert the target to an UpperGantryCoordinate.
         target_ugc = target_to_upper_gantry_coordinate(target)
         # Move the upper gantry along Z to clear the prep deck.
-        self.mabs(self.__ADDRESS_PIPETTOR_Z, 0, int(self.__LIMIT_MAX_VELOCITY_Z / 2), block=True)
+        print("MESSAGE (upper_gantry, move_pipettor): Hang time starts now...")
+        time_start = time.time()
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, 0, int(self.__LIMIT_MAX_VELOCITY_Z), block=True)
+        print("MESSAGE (upper_gantry, move_pipettor): Hang time for Z homing was {0}".format(time.time() - time_start))
         # Move the upper gantry along X and Y to the target location.
-        self.mabs(self.__ADDRESS_PIPETTOR_Y, target_ugc.y, int(self.__LIMIT_MAX_VELOCITY_Y / 2), block=False)
-        self.mabs(self.__ADDRESS_PIPETTOR_X, target_ugc.x, int(self.__LIMIT_MAX_VELOCITY_X / 2), block=True)
+        self.mabs(self.__ADDRESS_PIPETTOR_Y, target_ugc.y, int(self.__LIMIT_MAX_VELOCITY_Y), block=False)
+        self.mabs(self.__ADDRESS_PIPETTOR_X, target_ugc.x, int(self.__LIMIT_MAX_VELOCITY_X), block=True)
         # Move the upper gantry along Z to mount the tips on the pipettor mandrels.
-        self.mabs(self.__ADDRESS_PIPETTOR_Z, target_ugc.z, int(self.__LIMIT_MAX_VELOCITY_Z / 2), block=True)
+        self.mabs(self.__ADDRESS_PIPETTOR_Z, target_ugc.z, int(self.__LIMIT_MAX_VELOCITY_Z), block=True)
 
     # Move Aspirate Dispense Method
     def move_aspirate_dispense(self, source, target, aspirate_vol, dispense_vol):
